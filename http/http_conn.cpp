@@ -289,38 +289,29 @@ http_conn::HTTP_CODE http_conn::parse_request_line(char *text)
 //解析http请求的一个头部信息
 http_conn::HTTP_CODE http_conn::parse_headers(char *text)
 {
-    if (text[0] == '\0')
-    {
+    if (text[0] == '\0') {
         if (m_content_length != 0)
         {
             m_check_state = CHECK_STATE_CONTENT;
             return NO_REQUEST;
         }
         return GET_REQUEST;
-    }
-    else if (strncasecmp(text, "Connection:", 11) == 0)
-    {
+    } else if (strncasecmp(text, "Connection:", 11) == 0) {
         text += 11;
         text += strspn(text, " \t");
         if (strcasecmp(text, "keep-alive") == 0)
         {
             m_linger = true;
         }
-    }
-    else if (strncasecmp(text, "Content-length:", 15) == 0)
-    {
+    } else if (strncasecmp(text, "Content-length:", 15) == 0) {
         text += 15;
         text += strspn(text, " \t");
         m_content_length = atol(text);
-    }
-    else if (strncasecmp(text, "Host:", 5) == 0)
-    {
+    } else if (strncasecmp(text, "Host:", 5) == 0) {
         text += 5;
         text += strspn(text, " \t");
         m_host = text;
-    }
-    else
-    {
+    } else {
         LOG_INFO("oop!unknow header: %s", text);
     }
     return NO_REQUEST;
