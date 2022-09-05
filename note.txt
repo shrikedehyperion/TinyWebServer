@@ -1,0 +1,27 @@
+主线程epoll, 然后线程池里的线程的run()会在m_workqueue非空的时候执行必要逻辑
+
+跟信号有关的一些处理
+reserve = sem(m_FreeConn);
+m_queuestat.wait();
+
+主线程进行事件循环
+
+    server.eventLoop();
+
+所有线程池中的线程都执行m_queuestat.wait()，并且处于阻塞状态。
+
+当有连接进来时，先执行
+
+    dealclinetdata();
+
+接着执行
+
+    dealwithread(sockfd);
+
+在该函数中，会向线程池的事件队列中加入一个队列
+
+    m_pool->append(users + sockfd, 0);
+
+接着线程池的m_queuestat.post()会使得信号量加1，从而使得线程池中正在执行 m_queuestat.wait()的任意一个线程，从阻塞中返回
+
+并且取出事件队列中的事件，开始执行相应的请求

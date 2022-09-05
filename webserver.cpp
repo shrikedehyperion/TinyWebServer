@@ -1,4 +1,5 @@
 #include "webserver.h"
+#include <libgen.h>
 
 WebServer::WebServer()
 {
@@ -6,10 +7,13 @@ WebServer::WebServer()
     users = new http_conn[MAX_FD];
 
     //root文件夹路径
-    char server_path[200];
+    char server_path[200] = {0};
     getcwd(server_path, 200);
+    //使用cmake编译生成的server在build目录下，因此寻找的root文件夹路径不对，造成浏览器访问时出现连接被重置的现象
+    //使用dirname接口去掉路径的最后一部分
+    char *dirs = dirname(server_path);
     char root[6] = "/root";
-    m_root = (char *)malloc(strlen(server_path) + strlen(root) + 1);
+    m_root = (char *)malloc(strlen(dirs) + strlen(root) + 1);
     strcpy(m_root, server_path);
     strcat(m_root, root);
 
